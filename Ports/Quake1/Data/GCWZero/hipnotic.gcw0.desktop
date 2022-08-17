@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Scourge of Armagon
-Type=Application
-Exec=quake-gles1 -hipnotic
-Icon=hipnotic
-Comment=Quake - Scourge of Armagon mission pack
-Terminal=false
-Categories=games;
-X-OD-Manual=manual-gcw0.txt
