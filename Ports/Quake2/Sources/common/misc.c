@@ -190,11 +190,13 @@ static void Qcommon_Init(int argc, char **argv)
 	}
 
 	z_chain.next = z_chain.prev = &z_chain;
-
+#if _NOT_APIM
 	extern bool IN_processEvent(SDL_Event *event);
 	sdlwInitialize(IN_processEvent, 0);
 	sdlwEnableDefaultEventManagement(false);
-
+#else
+	sdlwInitialize();
+#endif
 	/* prepare enough of the subsystems to handle
 	   cvar and command buffer management */
 	COM_InitArgv(argc, argv);

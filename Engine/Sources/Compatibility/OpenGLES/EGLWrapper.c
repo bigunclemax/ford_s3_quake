@@ -1,8 +1,8 @@
 #include "OpenGLES/EGLWrapper.h"
 #include "SDL/SDLWrapper.h"
-
+#if _NOT_APIM
 #include <SDL2/SDL_syswm.h>
-
+#endif
 #if defined(__RASPBERRY_PI__)
 #include "bcm_host.h"
 #endif
@@ -213,7 +213,7 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display;
 static DISPMANX_ELEMENT_HANDLE_T dispman_element;
 static EGL_DISPMANX_WINDOW_T l_dispmanWindow;
 #endif
-
+#if _NOT_APIM
 static EGLNativeWindowType eglwGetNativeWindow()
 {
     EGLNativeWindowType nativeWindow = NULL;
@@ -319,7 +319,7 @@ static EGLNativeWindowType eglwGetNativeWindow()
 
     return nativeWindow;
 }
-
+#endif
 bool eglwInitialize(EglwConfigInfo *minimalCfgi, EglwConfigInfo *requestedCfgi, bool maxQualityFlag) {
     eglwFinalize();
 
@@ -391,8 +391,11 @@ bool eglwInitialize(EglwConfigInfo *minimalCfgi, EglwConfigInfo *requestedCfgi, 
     // Create an EGL window surface.
     {
         static const EGLint SURFACE_ATTRIBUTES[] = { EGL_NONE };
+#if _NOT_APIM
 		EGLNativeWindowType nativeWindow = eglwGetNativeWindow();
-		eglw->surface = eglCreateWindowSurface(eglw->display, eglw->config, nativeWindow, SURFACE_ATTRIBUTES);
+#else
+		eglw->surface = eglCreateWindowSurface(eglw->display, eglw->config, sdlwContext->screen_win, SURFACE_ATTRIBUTES);
+#endif
 		if (eglw->surface==NULL) {
 			printf("Cannot create a window surface.\n");
 			goto on_error;

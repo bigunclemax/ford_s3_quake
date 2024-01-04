@@ -7,9 +7,9 @@ ifndef verbose
   SILENT = @
 endif
 
-CC = gcc
-CXX = g++
-AR = ar
+CC = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
+AR = $(CROSS_COMPILE)ar
 
 ifndef RESCOMP
   ifdef WINDRES
@@ -23,7 +23,7 @@ ifeq ($(config),release)
   OBJDIR     = ../../../Output/Targets/Linux-x86-32/Release/obj/quake2-game
   TARGETDIR  = ../../../Output/Targets/Linux-x86-32/Release/bin/baseq2
   TARGET     = $(TARGETDIR)/game.so
-  DEFINES   += -DARCH=\"i386\" -DOSTYPE=\"Linux\" -DNOUNCRYPT -DZIP
+  DEFINES   += -DNOUNCRYPT -DZIP -DARCH=\"arm\" -DOSTYPE=\"Qnx\" #-DARCH=\"i386\" -DOSTYPE=\"Linux\"
   INCLUDES  += -I../../../../../Engine/External/include -I../../../Sources
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -ffast-math -Wall -Wextra -O2 -fPIC -std=c99 -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-switch -Wno-missing-field-initializers -fPIC -fvisibility=hidden
@@ -45,7 +45,7 @@ ifeq ($(config),debug)
   OBJDIR     = ../../../Output/Targets/Linux-x86-32/Debug/obj/quake2-game
   TARGETDIR  = ../../../Output/Targets/Linux-x86-32/Debug/bin/baseq2
   TARGET     = $(TARGETDIR)/game.so
-  DEFINES   += -DARCH=\"i386\" -DOSTYPE=\"Linux\" -DNOUNCRYPT -DZIP
+  DEFINES   += -DNOUNCRYPT -DZIP -DARCH=\"arm\" -DOSTYPE=\"Qnx\" #-DARCH=\"i386\" -DOSTYPE=\"Linux\"
   INCLUDES  += -I../../../../../Engine/External/include -I../../../Sources
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -ffast-math -Wall -Wextra -g -fPIC -std=c99 -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-switch -Wno-missing-field-initializers -fPIC -fvisibility=hidden

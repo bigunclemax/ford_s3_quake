@@ -22,8 +22,11 @@
 #include "backends/input.h"
 #include "common/common.h"
 
-#include <SDL2/SDL.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <dlfcn.h>
 
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,6 +36,41 @@ bool logFileEnabled = false;
 unsigned int sys_frame_time;
 static void *game_library = NULL;
 int curtime;
+
+uint32_t SDL_GetTicks(void)
+{
+	static struct timespec start_ts;
+	static bool initialized = false;
+
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	if (!initialized) {
+		start_ts = now;
+		initialized = true;
+	}
+	uint64_t t = (((int64_t)(now.tv_sec - start_ts.tv_sec) * 1000) + ((now.tv_nsec - start_ts.tv_nsec) / 1000000));
+
+	return (uint32_t) (t & 0xFFFFFFFF);
+}
+
+char* SDL_GetPrefPath(const char *org, const char *app) {
+	fprintf(stderr, "%s - not implemented. '/tmp/' is default\n", __FUNCTION__);
+	return strdup(Sys_GetBinaryDir());
+}
+
+void* SDL_LoadObject(const char *sofile)
+{
+	return dlopen(sofile, RTLD_NOW);
+}
+
+void SDL_UnloadObject(void *handle) {
+	dlclose(handle);
+}
+
+void* SDL_LoadFunction(void *handle, const char *name)
+{
+	return dlsym(handle, name);
+}
 
 int Sys_Milliseconds()
 {
@@ -134,8 +172,6 @@ const char* Sys_GetBinaryDir()
 	return exeDir;
 }
 
-#endif
-
 char* Sys_GetCurrentDirectory()
 {
 	static char *workingDir = NULL;
@@ -155,7 +191,7 @@ char* Sys_GetCurrentDirectory()
 	}
 	return workingDir;
 }
-
+#endif
 char* Sys_GetHomeDir()
 {
 	static char *homeDir = NULL;
@@ -191,7 +227,7 @@ void* Sys_LoadLibrary(const char *path, const char *sym, void **handle)
 	void *module = SDL_LoadObject(path);
 	if (!module)
 	{
-		//Com_Printf("%s failed: SDL_LoadObject returned NULL on %s\n", __func__, path);
+		Com_Printf("%s failed: SDL_LoadObject returned NULL on %s\n", __func__, path);
 		return NULL;
 	}
 
@@ -201,7 +237,7 @@ void* Sys_LoadLibrary(const char *path, const char *sym, void **handle)
 		entry = SDL_LoadFunction(module, sym);
 		if (!entry)
 		{
-			Com_Printf("%s failed: GetProcAddress returned NULL on %s\n", __func__, path);
+			Com_Printf("%s failed: SDL_LoadFunction returned NULL on %s\n", __func__, path);
 			SDL_UnloadObject(module);
 			return NULL;
 		}

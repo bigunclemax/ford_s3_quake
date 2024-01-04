@@ -1,26 +1,29 @@
 #ifndef SDLWrapper_h
 #define SDLWrapper_h
 
-#include <SDL2/SDL.h>
+#include <screen/screen.h>
 
+#include <stdint.h>
 #include <stdbool.h>
 
-typedef bool (*SdlProcessEventFunction)(SDL_Event *event);
+#define SDL_WINDOW_FULLSCREEN 1
+#define SDL_INIT_VIDEO 1
 
 typedef struct {
     bool exitRequested;
-    bool defaultEventManagementEnabled;
-	SdlProcessEventFunction processEvent;
-	SDL_Window *window;
-	int windowWidth, windowHeight;
+	screen_context_t screen_ctx;
+	screen_window_t screen_win;
+	bool winInitialized;
+	int windowWidth;
+	int windowHeight;
 } SdlwContext;
 
 extern SdlwContext *sdlwContext;
 
-bool sdlwInitialize(SdlProcessEventFunction processEvent, Uint32 flags);
+bool sdlwInitialize();
 void sdlwFinalize();
 
-bool sdlwCreateWindow(const char *windowName, int windowWidth, int windowHeight, Uint32 flags);
+bool sdlwCreateWindow();
 void sdlwDestroyWindow();
 
 bool sdlwIsExitRequested();
@@ -29,5 +32,7 @@ bool sdlwResize(int w, int h);
 
 void sdlwEnableDefaultEventManagement(bool flag);
 void sdlwCheckEvents();
+
+bool sdlwGetSize(int *w, int *h);
 
 #endif

@@ -7,9 +7,9 @@ ifndef verbose
   SILENT = @
 endif
 
-CC = gcc
-CXX = g++
-AR = ar
+CC = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
+AR = $(CROSS_COMPILE)ar
 
 ifndef RESCOMP
   ifdef WINDRES
@@ -20,55 +20,50 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = ../../../Output/Targets/Linux-x86-32/Release/obj/quake2-gles2
-  TARGETDIR  = ../../../Output/Targets/Linux-x86-32/Release/bin
-  TARGET     = $(TARGETDIR)/quake2-gles2
-  DEFINES   += -DARCH=\"i386\" -DOSTYPE=\"Linux\" -DNOUNCRYPT -DZIP -D_GNU_SOURCE=1 -DEGLW_GLES2
-  INCLUDES  += -I../../../../../Engine/External/include -I../../../Sources -I../../../../../Engine/Sources/Compatibility -I../../../../../Engine/Sources/Compatibility/OpenGLES/Includes
-  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
-  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -ffast-math -Wall -Wextra -O2 -std=c99 -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-switch -Wno-missing-field-initializers -fPIC -fvisibility=hidden
-  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
-  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -L../../../Output/Targets/Linux-x86-32/Release/lib -L. -s
-  LDDEPS    += ../../../Output/Targets/Linux-x86-32/Release/lib/libZLib.a
-  LIBS      += $(LDDEPS) -lm -ldl -lGLESv2 -lEGL -lSDL2main -lSDL2 -lX11
-  LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
-  define PREBUILDCMDS
-  endef
-  define PRELINKCMDS
-  endef
-  define POSTBUILDCMDS
-  endef
+  OBJDIR        = ../../../Output/Targets/Linux-x86-32/Release/obj/quake2-gles2
+  TARGETDIR     = ../../../Output/Targets/Linux-x86-32/Release/bin
+  ALL_CFLAGS    += -O2
+  ALL_LDFLAGS   += -L../../../Output/Targets/Linux-x86-32/Release/lib
+  LDDEPS        += #../../../Output/Targets/Linux-x86-32/Release/lib/libZLib.a
 endif
 
 ifeq ($(config),debug)
-  OBJDIR     = ../../../Output/Targets/Linux-x86-32/Debug/obj/quake2-gles2
-  TARGETDIR  = ../../../Output/Targets/Linux-x86-32/Debug/bin
-  TARGET     = $(TARGETDIR)/quake2-gles2
-  DEFINES   += -DARCH=\"i386\" -DOSTYPE=\"Linux\" -DNOUNCRYPT -DZIP -D_GNU_SOURCE=1 -DEGLW_GLES2
-  INCLUDES  += -I../../../../../Engine/External/include -I../../../Sources -I../../../../../Engine/Sources/Compatibility -I../../../../../Engine/Sources/Compatibility/OpenGLES/Includes
-  ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
-  ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -ffast-math -Wall -Wextra -g -std=c99 -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-switch -Wno-missing-field-initializers -fPIC -fvisibility=hidden
-  ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
-  ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  ALL_LDFLAGS   += $(LDFLAGS) -L../../../Output/Targets/Linux-x86-32/Debug/lib -L.
-  LDDEPS    += ../../../Output/Targets/Linux-x86-32/Debug/lib/libZLib.a
-  LIBS      += $(LDDEPS) -lm -ldl -lGLESv2 -lEGL -lSDL2main -lSDL2 -lX11
-  LINKCMD    = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
-  define PREBUILDCMDS
-  endef
-  define PRELINKCMDS
-  endef
-  define POSTBUILDCMDS
-  endef
+  OBJDIR        = ../../../Output/Targets/Linux-x86-32/Debug/obj/quake2-gles2
+  TARGETDIR     = ../../../Output/Targets/Linux-x86-32/Debug/bin
+  ALL_CFLAGS    += -g
+  ALL_LDFLAGS   += -L../../../Output/Targets/Linux-x86-32/Debug/lib
+  LDDEPS        += #../../../Output/Targets/Linux-x86-32/Debug/lib/libZLib.a
 endif
+
+TARGET        = $(TARGETDIR)/quake2-gles2
+DEFINES       +=  -DNOUNCRYPT -D_GNU_SOURCE=1 -DEGLW_GLES2 -DARCH=\"arm\" -DOSTYPE=\"Qnx\" #-DZIP
+INCLUDES      += -I../../../../../Engine/External/include -I../../../Sources -I../../../../../Engine/Sources/Compatibility -I../../../../../Engine/Sources/Compatibility/OpenGLES/Includes
+ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
+ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -ffast-math -Wall -Wextra   -Wno-unused-function -Wno-unused-parameter -Wno-unused-but-set-variable -Wno-switch -Wno-missing-field-initializers -fPIC -fvisibility=hidden
+ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
+ALL_LDFLAGS   += $(LDFLAGS) -L.
+ALL_RESFLAGS  += $(RESFLAGS) $(DEFINES) $(INCLUDES)
+
+LINKCMD       = $(CC) -o $(TARGET) $(OBJECTS) $(RESOURCES) $(ARCH) $(ALL_LDFLAGS) $(LIBS)
+LIBS          += $(LDDEPS) -lm -lGLESv2 -lEGL -lsocket -lscreen -lhiddi #-ldl $(LDDEPS) -lSDL2main -lSDL2 -lX11
+
+ALL_CFLAGS    += -Wno-misleading-indentation -Wno-implicit-fallthrough
+DEFINES       += -DSDL_ENABLE_OLD_NAMES
+ALL_LDFLAGS   += -Wl,--unresolved-symbols=ignore-in-shared-libs -fno-stack-protector -s
+LIBS          += -lSDL3
+
+define PREBUILDCMDS
+endef
+define PRELINKCMDS
+endef
+define POSTBUILDCMDS
+endef
 
 OBJECTS := \
 	$(OBJDIR)/memory_linux.o \
 	$(OBJDIR)/network_linux.o \
 	$(OBJDIR)/system_linux.o \
 	$(OBJDIR)/qal.o \
-	$(OBJDIR)/audio_sdl.o \
 	$(OBJDIR)/input_sdl.o \
 	$(OBJDIR)/system_sdl.o \
 	$(OBJDIR)/cl_cin.o \
@@ -142,7 +137,6 @@ OBJECTS := \
 	$(OBJDIR)/rand.o \
 	$(OBJDIR)/shared.o \
 	$(OBJDIR)/ioapi.o \
-	$(OBJDIR)/unzip.o \
 	$(OBJDIR)/sv_cmd.o \
 	$(OBJDIR)/sv_conless.o \
 	$(OBJDIR)/sv_entities.o \
@@ -156,6 +150,9 @@ OBJECTS := \
 	$(OBJDIR)/EGLWrapper.o \
 	$(OBJDIR)/OpenGLWrapper.o \
 	$(OBJDIR)/SDLWrapper.o \
+
+#	$(OBJDIR)/unzip.o \
+#	$(OBJDIR)/audio_sdl.o \
 
 RESOURCES := \
 

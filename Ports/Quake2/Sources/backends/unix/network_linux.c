@@ -29,7 +29,8 @@
 #ifndef __USE_POSIX
 #define __USE_POSIX 1
 #endif
-
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 #include <unistd.h>
 #include <sys/select.h>
 #include <sys/socket.h>

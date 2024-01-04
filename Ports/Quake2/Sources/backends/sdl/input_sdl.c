@@ -4,8 +4,9 @@
 #include "client/refresh/r_private.h"
 
 #include "SDL/SDLWrapper.h"
-
+#if _NOT_APIM
 #include <SDL2/SDL.h>
+#endif
 
 #define MOUSE_MAX 3000
 #define MOUSE_MIN 40
@@ -36,7 +37,7 @@ static int l_mouseOldX, l_mouseOldY;
 static SDL_Joystick *l_joystick = NULL;
 static SDL_GameController *l_controller = NULL;
 
-static int IN_TranslateSDLtoQ2Key(Sint32 keysym)
+static int IN_TranslateSDLtoQ2Key(int32_t keysym)
 {
 	int key;
 
@@ -295,6 +296,7 @@ bool IN_processEvent(SDL_Event *event)
 {
 	switch (event->type)
 	{
+#if _NOT_APIM
 	case SDL_QUIT:
 		printf("Exit requested by the system.");
 		sdlwRequestExit(true);
@@ -315,11 +317,12 @@ bool IN_processEvent(SDL_Event *event)
 			break;
 		}
 		break;
-
+#endif
 	case SDL_MOUSEWHEEL:
 		Key_Event((event->wheel.y > 0 ? K_MWHEELUP : K_MWHEELDOWN), true);
 		Key_Event((event->wheel.y > 0 ? K_MWHEELUP : K_MWHEELDOWN), false);
 		break;
+
 	case SDL_MOUSEBUTTONDOWN:
 	// fall-through
 	case SDL_MOUSEBUTTONUP:
@@ -357,11 +360,11 @@ bool IN_processEvent(SDL_Event *event)
 		}
 		break;
 
-		#if !defined(__GCW_ZERO__)
+               #if (!defined(__GCW_ZERO__) && !defined(__QNX__))
 	case SDL_TEXTINPUT:
 		Char_Event(event->text.text[0], false);
 		break;
-		#endif
+               #endif
 
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
@@ -375,7 +378,8 @@ bool IN_processEvent(SDL_Event *event)
 	}
 	break;
 
-	case SDL_JOYAXISMOTION:
+#if _NOT_APIM
+       case SDL_JOYAXISMOTION:
 		break;
 	case SDL_JOYBUTTONDOWN:
 	case SDL_JOYBUTTONUP:
@@ -400,6 +404,7 @@ bool IN_processEvent(SDL_Event *event)
 
 	case SDL_CONTROLLERAXISMOTION:
 		break;
+#endif
 	case SDL_CONTROLLERBUTTONDOWN:
 	case SDL_CONTROLLERBUTTONUP:
 	{
@@ -439,11 +444,17 @@ bool IN_processEvent(SDL_Event *event)
  */
 void IN_Update()
 {
+#if _NOT_APIM
 	sdlwCheckEvents();
 
 	// Grab and ungrab the mouse if the  console or the menu is opened.
 	bool want_grab = (r_fullscreen->value || input_grab->value == 1 || (input_grab->value == 2 && mouse_windowed->value));
 	In_Grab(want_grab);
+#else
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+		IN_processEvent(&event);
+#endif
 }
 
 static float ComputeStickValue(float stickValue)
@@ -531,7 +542,6 @@ void IN_Move(usercmd_t *cmd)
         running = 1.0f;
 
     float joyXFloat = 0.0f, joyYFloat = 0.0f;
-
     if (l_joystick != NULL && stick_enabled->value)
     {
         float joyX, joyY;
@@ -540,7 +550,6 @@ void IN_Move(usercmd_t *cmd)
         joyXFloat = ComputeStickValue(joyX);
         joyYFloat = ComputeStickValue(joyY);
     }
-
     if (l_controller != NULL)
     {
         float joyX, joyY;
@@ -691,6 +700,7 @@ void IN_Shutdown()
 	Com_Printf("Shutting down input.\n");
 }
 
+#if _NOT_APIM
 void In_Grab(bool grab)
 {
 	if (sdlwContext->window != NULL)
@@ -702,3 +712,4 @@ void In_Grab(bool grab)
 		R_printf(PRINT_ALL, "Setting relative mouse mode failed, reason: %s\nYou should probably update to SDL 2.0.3 or newer\n", SDL_GetError());
 	}
 }
+#endif

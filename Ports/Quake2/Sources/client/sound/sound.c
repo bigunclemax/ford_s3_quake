@@ -148,12 +148,17 @@ sfxcache_t* S_LoadSound(sfx_t *s)
 	{
 		if (sound_started == SS_SDL)
 		{
+#if _NOT_APIM
 			if (!SDL_Cache(s, &info, data + info.dataofs))
 			{
 				Com_Printf("Pansen!\n");
 				FS_FreeFile(data);
 				return NULL;
 			}
+#else
+			Com_Printf("%s - not implemented", __FUNCTION__);
+			return NULL;
+#endif
 		}
 	}
 
@@ -581,11 +586,15 @@ void S_IssuePlaysound(playsound_t *ps)
 	else
 	#endif
 	{
+#if _NOT_APIM
 		if (sound_started == SS_SDL)
 		{
 			ch->master_vol = (int)ps->volume;
 			SDL_Spatialize(ch);
 		}
+#else
+		Com_Printf("%s - not implemented", __FUNCTION__);
+#endif
 	}
 
 	ch->pos = 0;
@@ -667,11 +676,15 @@ void S_StartSound(vec3_t origin, int entnum, int entchannel, sfx_t *sfx, float f
 	else
 	#endif
 	{
+#if _NOT_APIM
 		if (sound_started == SS_SDL)
 		{
 			ps->begin = SDL_DriftBeginofs(timeofs);
 			ps->volume = fvol * 255;
 		}
+#else
+		Com_Printf("%s - not implemented", __FUNCTION__);
+#endif
 	}
 
 	/* sort into the pending sound list */
@@ -746,10 +759,14 @@ void S_StopAllSounds(void)
 	else
 	#endif
 	{
+#if _NOT_APIM
 		if (sound_started == SS_SDL)
 		{
 			SDL_ClearBuffer();
 		}
+#else
+		Com_Printf("%s - not implemented", __FUNCTION__);
+#endif
 	}
 
 	/* clear all the channels */
@@ -816,10 +833,14 @@ void S_RawSamples(int samples, int rate, int width, int channels, byte *data, fl
 	else
 	#endif
 	{
+#if _NOT_APIM
 		if (sound_started == SS_SDL)
 		{
 			SDL_RawSamples(samples, rate, width, channels, data, volume);
 		}
+#else
+		Com_Printf("%s - not implemented", __FUNCTION__);
+#endif
 	}
 }
 
@@ -848,10 +869,14 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 	else
 	#endif
 	{
+#if _NOT_APIM
 		if (sound_started == SS_SDL)
 		{
 			SDL_Update();
 		}
+#else
+		Com_Printf("%s - not implemented", __FUNCTION__);
+#endif
 	}
 }
 
@@ -963,7 +988,11 @@ void S_SoundInfo_f(void)
 	else
 	#endif
 	{
+#if _NOT_APIM
 		SDL_SoundInfo();
+#else
+		Com_Printf("%s - not implemented", __FUNCTION__);
+#endif
 	}
 }
 
@@ -1015,6 +1044,7 @@ void S_Init(void)
 	else
 	#endif
 	{
+#if _NOT_APIM
 		if (SDL_BackendInit())
 		{
 			sound_started = SS_SDL;
@@ -1024,6 +1054,11 @@ void S_Init(void)
 			sound_started = SS_NOT;
 			return;
 		}
+#else
+		Com_Printf("%s - not implemented\n", __FUNCTION__);
+		sound_started = SS_NOT;
+		return;
+#endif
 	}
 
 	num_sfx = 0;
@@ -1096,10 +1131,14 @@ void S_Shutdown()
 	else
 	#endif
 	{
+#if _NOT_APIM
 		if (sound_started == SS_SDL)
 		{
 			SDL_BackendShutdown();
 		}
+#else
+		Com_Printf("SDL_BackendShutdown bot inmpl");
+#endif
 	}
 
 	sound_started = SS_NOT;

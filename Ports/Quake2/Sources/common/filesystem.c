@@ -1546,12 +1546,12 @@ void FS_InitFilesystem()
 
 	/* Game directory. */
 	fs_gamedirvar = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
-
+#if _NOT_APIM
 	/* Current directory. */
     char *currentDirectory = Sys_GetCurrentDirectory();
     Com_Printf("Current directory is: \"%s\".\n", currentDirectory);
 	fs_homepath = Cvar_Get("homepath", currentDirectory, CVAR_NOSET);
-
+#endif
 	// Load base packs. They will never be freed.
 	FS_AddGameDirectories(BASEDIRNAME);
 

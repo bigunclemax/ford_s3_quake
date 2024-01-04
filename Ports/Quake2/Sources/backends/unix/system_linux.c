@@ -39,7 +39,9 @@
 #include <fcntl.h>
 #include <sys/ipc.h>
 #include <sys/select.h>
+#if _NOT_APIM
 #include <sys/shm.h>
+#endif
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -48,7 +50,12 @@
 #include <termios.h>
 #include <unistd.h>
 
+#if _NOT_APIM
 #include "SDL/SDLWrapper.h"
+#else
+#include <sys/procfs.h>
+#include <sys/dcmd_ip.h>
+#endif
 
 #include "common/common.h"
 #include "common/glob.h"
@@ -57,6 +64,7 @@
 //--------------------------------------------------------------------------------
 // File system.
 //--------------------------------------------------------------------------------
+#if _NOT_APIM
 #define PATH_MAX 4096
 
 void Sys_GetExecutablePath(char * exePath, int maxLength)
@@ -79,7 +87,35 @@ void Sys_GetExecutablePath(char * exePath, int maxLength)
 		exePath[len] = '\0';
 	}
 }
+#else
+void Sys_GetExecutablePath(char *exePath, int maxLength)
+{
+	int fd;
+	static struct {
+		procfs_debuginfo info;
+		char             buff[PATH_MAX];
+	} name;
 
+	exePath[0] = '\0';
+
+	if (maxLength > PATH_MAX)
+		maxLength = PATH_MAX;
+
+	if ((fd = open("/proc/self/as", O_RDONLY)) == -1) {
+		fprintf(stderr, "%s - can't open proc file\n", __func__);
+		return;
+	}
+
+	if (devctl(fd, DCMD_PROC_MAPDEBUG_BASE, &name, sizeof(name), 0) != EOK) {
+		fprintf(stderr, "%s - devctl error\n", __func__);
+		return;
+	}
+
+	memcpy(exePath, name.info.path, maxLength);
+
+	fprintf(stdout, "%s - exePath: '%s'\n", __func__, exePath);
+}
+#endif
 qboolean Sys_Mkdir(char *path)
 {
 	int error = mkdir(path, 0755);
@@ -290,9 +326,9 @@ void Sys_Error(char *error, ...)
     string[1023] = 0;
 
 	fprintf(stderr, "Fatal error: %s\n", string);
-	
+#if _NOT_APIM
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal error", string, NULL);
-
+#endif
 	exit(1);
 }
 

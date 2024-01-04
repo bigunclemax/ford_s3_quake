@@ -32,7 +32,7 @@
 #if defined(__GCW_ZERO__)
 #define GL_MODE_FIXED
 #endif
-//#define GL_MODE_FIXED
+#define GL_MODE_FIXED
 
 static menuframework_s MenuVideo_menu;
 
@@ -214,6 +214,7 @@ static int MenuVideo_fullscreenMode_init(int y)
 {
     if (MenuVideo_fullscreenMode_table == NULL)
     {
+#if _NOT_APIM
         int displayModeNb = SDL_GetNumDisplayModes(0);
         if (displayModeNb < 1)
         {
@@ -255,6 +256,9 @@ static int MenuVideo_fullscreenMode_init(int y)
             MenuVideo_fullscreenMode_nb = displayModeValidNb;
             MenuVideo_fullscreenMode_strings[displayModeValidNb] = NULL;
         }        
+#else
+	R_printf(PRINT_ALL, "SDL_GetNumDisplayModes Not implemented\n");
+#endif
     }
 
 	menulist_s *list = &MenuVideo_fullscreenMode_list;

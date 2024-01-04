@@ -41,7 +41,7 @@
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__QNX__)
 #include <sys/types.h>
 #define MAP_ANONYMOUS MAP_ANON
 #endif
