@@ -6,6 +6,8 @@
 #include "SDL/SDLWrapper.h"
 #if _NOT_APIM
 #include <SDL2/SDL.h>
+#else
+#include <SDL3/SDL.h>
 #endif
 
 #define MOUSE_MAX 3000
@@ -646,16 +648,16 @@ void IN_Init()
 		}
 		else
 		{
-			if (SDL_NumJoysticks() > 0)
-			{
-				int n = SDL_NumJoysticks();
+			int n = 0;
+			SDL_JoystickID *joysticks = SDL_GetJoysticks(&n);
 				for (int i = 0; i < n; i++)
 				{
 					if (SDL_IsGameController(i))
 					{
 						if (!l_controller)
 						{
-							l_controller = SDL_GameControllerOpen(i);
+							SDL_JoystickID instance_id = joysticks[i];
+							l_controller = SDL_GameControllerOpen(instance_id);
 							if (!l_controller)
 							{
 								R_printf(PRINT_ALL, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
@@ -674,7 +676,7 @@ void IN_Init()
 						}
 					}
 				}
-			}
+			SDL_free(joysticks);
 		}
 	}
 
