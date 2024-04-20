@@ -442,7 +442,7 @@ bool IN_processEvent(SDL_Event *event)
 		case SDL_CONTROLLER_BUTTON_B: key = K_GAMEPAD_B; break;
 		case SDL_CONTROLLER_BUTTON_X: key = K_GAMEPAD_X; break;
 		case SDL_CONTROLLER_BUTTON_Y: key = K_GAMEPAD_Y; break;
-		//case SDL_CONTROLLER_BUTTON_BACK: key = K_GAMEPAD_; break;
+		case SDL_CONTROLLER_BUTTON_BACK: key = K_GAMEPAD_POWER; break;
 		case SDL_CONTROLLER_BUTTON_GUIDE: key = K_GAMEPAD_SELECT; break;
 		case SDL_CONTROLLER_BUTTON_START: key = K_GAMEPAD_START; break;
 		//case SDL_CONTROLLER_BUTTON_LEFTSTICK: key = K_GAMEPAD_; break;
@@ -589,17 +589,17 @@ void IN_Move(usercmd_t *cmd)
     {
         float joyX, joyY;
 
-        joyX = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_LEFTX) / 32768.0f;;
-        joyY = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_LEFTY) / 32768.0f;;
+        joyX = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_RIGHTX) / 32768.0f;;
+        joyY = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_RIGHTY) / 32768.0f;;
         joyXFloat += ComputeStickValue(joyX);
         joyYFloat += ComputeStickValue(joyY);
 
-        joyX = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_RIGHTX) / 32768.0f;;
-        joyY = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_RIGHTY) / 32768.0f;;
+        joyX = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_LEFTX) / 32768.0f;;
+        joyY = (float)SDL_GameControllerGetAxis(l_controller, SDL_CONTROLLER_AXIS_LEFTY) / 32768.0f;;
         joyX = ComputeStickValue(joyX);
         joyY = ComputeStickValue(joyY);
         cmd->sidemove += cl_speed_side->value * joyX * running;
-        cmd->forwardmove += cl_speed_forward->value * joyY * running;
+        cmd->forwardmove += -1 * cl_speed_forward->value * joyY * running;
     }
 
     /* add mouse X/Y movement to cmd */
