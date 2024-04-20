@@ -294,6 +294,29 @@ static int IN_TranslateSDLtoQ2Key(int32_t keysym)
 	return key;
 }
 
+static void IN_HandleGamepadAdded(SDL_JoystickID id)
+{
+	const char *name;
+
+	if (!l_controller)
+		l_controller = SDL_OpenGamepad(id);
+
+	if (!l_controller)
+		return;
+
+	name = SDL_GetGamepadName(l_controller);
+
+	R_printf(PRINT_ALL, "Gamepad connected: %s\n", name);
+}
+
+static void IN_HandleGamepadRemoved(SDL_JoystickID id)
+{
+	/* SDL_CloseGamepad(l_controller); */
+	l_controller = NULL;
+
+	R_printf(PRINT_ALL, "Gamepad disconnected\n");
+}
+
 bool IN_processEvent(SDL_Event *event)
 {
 	switch (event->type)
@@ -433,6 +456,16 @@ bool IN_processEvent(SDL_Event *event)
 		}
 		if (key >= 0)
 			Key_Event(key, down);
+	}
+	break;
+	case SDL_EVENT_GAMEPAD_ADDED:
+	{
+		IN_HandleGamepadAdded(event->gdevice.which);
+	}
+	break;
+	case SDL_EVENT_GAMEPAD_REMOVED:
+	{
+		IN_HandleGamepadRemoved(event->gdevice.which);
 	}
 	break;
 	}
