@@ -34,7 +34,7 @@
 
 /* Should have 4 characters. */
 #define QUAKE2_VERSION_NAME "1.1"
-#define QUAKE2_TEAM_NAME "Thenesis"
+#define QUAKE2_TEAM_NAME "Bigunclemax port of Thenesis"
 #define QUAKE2_COMPLETE_NAME QUAKE2_TEAM_NAME " Quake II v" QUAKE2_VERSION_NAME
 #define BASEDIRNAME "baseq2"
 
