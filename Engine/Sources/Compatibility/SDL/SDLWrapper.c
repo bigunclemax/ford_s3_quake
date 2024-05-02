@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common/common.h"
+
+#define R_ZORDER_DEFAULT_STRING "2147483647" //INT_MAX
+cvar_t *r_window_zorder;
+
 SdlwContext *sdlwContext = NULL;
 
 //SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK
@@ -105,7 +110,7 @@ bool sdlwInitialize() {
 //    if (SDL_NumJoysticks() > 0) SDL_JoystickOpen(0);
 #endif
 
-    rc = screen_create_context(&(sdlw->screen_ctx), 0);
+	rc = screen_create_context(&(sdlw->screen_ctx), SCREEN_WINDOW_MANAGER_CONTEXT);
 	if (rc) {
 		fprintf(stderr, "iow_create_context failed with error %d (0x%08x)\n", rc, rc);
 		goto on_error;
@@ -147,6 +152,9 @@ bool sdlwCreateWindow()
 		fprintf(stderr, "screen_create_window\n");
 		goto on_error_1;
 	}
+
+	r_window_zorder = Cvar_Get("r_window_zorder", R_ZORDER_DEFAULT_STRING, CVAR_ARCHIVE);
+	zorder = (int)r_window_zorder->value;
 
 	rc = screen_set_window_property_iv(sdlw->screen_win, SCREEN_PROPERTY_ZORDER, &zorder);
 	if (rc) {
